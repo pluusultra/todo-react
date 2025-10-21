@@ -1,25 +1,50 @@
+import {useState, useEffect} from 'react'
 import AddTaskForm from "./AddTaskForm";
 import SearchTaskForm from "./SearchTaskForm";
 import TodoInfo from "./TodoInfo";
 import TodoList from "./TodoList";
 
 const Todo = () => {
-    const tasks = [
-        {id: 'task-1', title: "Купить молоко", isDone: false},
-        {id: 'task-2', title: "Погладить кота", isDone: true},
-        {id: 'task-3', title: "Посмотреть аниме", isDone: false},
-    ]
+
+    const [tasks, setTasks] = useState(() => {
+            const savedTasks = localStorage.getItem('tasks')
+            if (savedTasks) {
+                return JSON.parse(savedTasks)
+            }
+
+            return [
+                {id: 'task-1', title: "Купить молоко", isDone: false},
+                {id: 'task-2', title: "Погладить кота", isDone: true},
+                {id: 'task-3', title: "Посмотреть аниме", isDone: false},
+            ]
+        }
+    )
+
+    const [newTaskTitle, setNewTaskTitle] = useState('')
 
     const deleteAllTasks = () => {
-        console.log('Удаляем все задачи')
+        const isConfirmed = confirm('Are you sure you want to delete all?')
+
+        if (isConfirmed) {
+            setTasks([])
+        }
     }
 
     const deleteTask = (taskId) => {
-        console.log(`Удаляем задачу с ID: ${taskId}`);
+        setTasks(
+            tasks.filter((task) => task.id !== taskId)
+        )
     }
 
     const toggleTaskComplete = (taskId, isDone) => {
-        console.log(`Задача ${taskId} ${isDone ? 'Выполнена' : 'Не выполнена'}`)
+        setTasks(
+            tasks.map((task) => {
+                if (task.id === taskId) {
+                    return {...task, isDone}
+                }
+                return task
+            })
+        )
     }
 
     const filterTasks = (query) => {
@@ -27,13 +52,28 @@ const Todo = () => {
     }
 
     const addTask = () => {
-        console.log('Задача добавлена')
+        if (newTaskTitle.trim().length > 0) {
+            const newTask = {
+                id: crypto?.randomUUID() ?? Date.now().toString(),
+                title: newTaskTitle,
+                isDone: false
+            }
+
+            setTasks([...tasks, newTask])
+            setNewTaskTitle('')
+        }
     }
+
+    useEffect(() => {
+        localStorage.setItem('tasks', JSON.stringify(tasks))
+    }, [tasks]);
 
     return (
         <div className="todo">
             <h1 className="todo__title">To Do List</h1>
             <AddTaskForm
+                newTasktitle={newTaskTitle}
+                setNewTaskTitle={setNewTaskTitle}
                 addTask={addTask}
             />
             <SearchTaskForm
