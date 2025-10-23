@@ -9,6 +9,11 @@ const tasksAPI = {
         return fetch(URL).then((response) => response.json())
     },
 
+    getById: (id) => {
+        return fetch(`${URL}/${id}`)
+            .then(response => response.json())
+    },
+
     add: (task) => {
         return fetch(URL, {
             method: 'POST',
@@ -28,7 +33,7 @@ const tasksAPI = {
     },
 
     toggleComplete: (id, isDone) => {
-        return  fetch(`${URL}/${id}`, {
+        return fetch(`${URL}/${id}`, {
             method: 'PATCH',
             headers,
             body: JSON.stringify({isDone})
